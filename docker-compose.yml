@@ -1,0 +1,46 @@
+version: '1'
+
+services:
+  stock_management_backend_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3800:3500"
+    command: ['sh', '-c', 'npm i && npm run build:$ENV && ls && npm run start:$ENV']
+    depends_on:
+      - redis
+      - mysql
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  redis:
+    image: "redis:7.2"
+    container_name: my_redis
+    environment:
+      REDIS_PASSWORD: "your_redis_password"
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--requirepass your_redis_password"]
+
+  mysql:
+    image: "mysql:8.2"
+    container_name: my_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: examplepassword
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: my_user
+      MYSQL_PASSWORD: my_password
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+  
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
